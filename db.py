@@ -13,6 +13,3 @@ client = MongoClient(MONGODB_URI)
 
 # Access a specific database
 ArtKartDB = client['artkart']
-
-# Users collection
-ArtKartUsers = ArtKartDB['users']
