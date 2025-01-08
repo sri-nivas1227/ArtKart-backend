@@ -11,7 +11,7 @@ class UserModel:
             "dob": str,
             "username": str,
             "email": str,
-            "password": bytes,
+            "password": str,
             
         }
     def _validate_user(self, data, partial=False):
@@ -22,16 +22,17 @@ class UserModel:
         for key, value_type in self.schema.items():
             if key in data:
                 if not isinstance(data[key], value_type):
-                    return False
+                    return False,key
             elif not partial:  # For full validation, ensure all keys are present
-                return False
-        return True
+                return False, key
+        return True, None
     
     def create_user(self, user):
         print(user)
-        if not self._validate_user(user):
-            raise ValueError("Invalid user data")
-        return self.collection.insert_one(user).inserted_id
+        is_valid, key = self._validate_user(user)   
+        if not is_valid:
+            return False, f"Invalid user data structure. Invalid {key} value"
+        return True, self.collection.insert_one(user).inserted_id
 
     def get_user_by_id(self, user_id):
         """

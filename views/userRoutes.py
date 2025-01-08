@@ -18,24 +18,29 @@ def user_register():
     first_name = payload.get('firstName').lower()
     last_name = payload.get('lastName').lower()
     password = payload.get('password')
-    email = payload.get('email')
+    email = payload.get('email').lower()
     dob = payload.get('dob')
     
+    # check if the email already exists
+    if userModel.get_user_by_username(email):
+        return make_error_response(False, "User email already exists, please login."), 400
     # check if the user already exists
     if userModel.get_user_by_username(username):
-        return 'User already exists', 409
+        return make_error_response(False, "Username exists, pick another one."), 400
     
     
     # hash the password
     password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     
+    success, data = userModel.create_user({'username': username, 'password': str(password), 'first_name': first_name, 'last_name': last_name,'email': email, 'dob': dob})
     # create a new user
-    user_id = userModel.create_user({'username': username, 'password': password, 'first_name': first_name, 'last_name': last_name,'email': email, 'dob': dob})
-
-
+    if not success:
+        return make_error_response(False, data), 400
+    user_id = data
+    print(user_id, type(user_id))
 
     # save the user details to the database
-    return make_success_response(True, "User created successfully", data={"user_id":user_id}), 201
+    return make_success_response(True, "User created successfully", data={"user_id":str(user_id)}), 201
 
 @auth.route('/login', methods=['POST'])
 def user_login():

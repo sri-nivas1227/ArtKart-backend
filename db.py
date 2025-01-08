@@ -13,4 +13,3 @@ client = MongoClient(MONGODB_URI)
 
 # Access a specific database
 ArtKartDB = client['artkart']
-print("Connected to MongoDB")
